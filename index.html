@@ -171,9 +171,7 @@ function reset(){
  document.getElementById('task').style.display='none';
  updateUI();
 }
-reset();started=false;
 
-/* AUDIO */
 let AC=null,master=null,muted=false;
 function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=muted?0:0.5;master.connect(AC.destination);}catch(e){}}
 function toggleSound(){muted=!muted;if(master)master.gain.value=muted?0:0.5;document.getElementById('btn-sound').textContent=muted?'🔇':'🔊';}
@@ -183,14 +181,12 @@ const sfx={select:()=>beep(660,.09,'sine',.15),task:()=>{beep(523,.1,'sine',.15)
 let ambTimer=0;
 function ambience(dt){if(!AC||muted||!started||paused)return;ambTimer-=dt;if(ambTimer<=0){ambTimer=2+Math.random()*3;const n=nightAmt();if(n>.5){beep(4200+Math.random()*600,.06,'sine',.02);setTimeout(()=>beep(4200,.06,'sine',.02),120);}else{beep(2000+Math.random()*1200,.12,'sine',.03,2600);}}}
 
-/* HELPERS */
 function lerpC(a,b,t){const ah=parseInt(a.slice(1),16),bh=parseInt(b.slice(1),16);const r=((ah>>16)+(((bh>>16)-(ah>>16))*t))|0,g=(((ah>>8)&255)+((((bh>>8)&255)-((ah>>8)&255))*t))|0,bl=((ah&255)+(((bh&255)-(ah&255))*t))|0;return `rgb(${r},${g},${bl})`;}
 function nightAmt(){return timeOfDay>=.5?Math.sin((timeOfDay-.5)*Math.PI*2):0;}
 function laneY(l){return l===0?gyB():gyF();}
 function toast(m,c){const t=document.getElementById('toast');t.textContent=m;t.style.background=c||'rgba(15,23,42,.85)';t.style.opacity=1;clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity=0,2600);}
 function burst(x,y,col,n,up){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*4,vy:up?-Math.random()*3-1:(Math.random()-.5)*4,life:1,col,r:2+Math.random()*3});}
 
-/* TASKS */
 const TASK_TYPES=[{b:'shop',label:'сходить в магазин за хлебом 🍞',reward:15},{b:'garden',label:'собрать урожай на огороде 🥕',reward:20},{b:'hospital',label:'проверить здоровье в больнице 💊',reward:15},{b:'home',label:'отдохнуть дома 🛋',reward:10}];
 function newTask(){
  if(!started||over)return;
@@ -220,7 +216,6 @@ function completeTask(c){
  updateUI();
 }
 
-/* DEATH */
 function die(c){
  c.alive=false;
  if(c.isGuest){toast(`👋 Гость ${c.name} ушёл домой.`,'rgba(148,163,184,.85)');if(selected===c)selected=chars.find(x=>x.alive&&!x.isGuest)||null;updateUI();return;}
@@ -233,7 +228,6 @@ function die(c){
  updateUI();
 }
 
-/* GUEST GIFTS (game-time, pause-safe) */
 function deliverGifts(g){
  if(!g.alive)return;
  g.alive=false;
@@ -245,7 +239,6 @@ function deliverGifts(g){
  updateUI();
 }
 
-/* UPDATE */
 function update(dt){
  tick+=dt*60;
  timeOfDay+=dt/120;if(timeOfDay>=1){timeOfDay=0;day++;toast('🌅 Наступил день '+day,'rgba(167,139,250,.85)');}
@@ -285,7 +278,6 @@ function update(dt){
  cameraX=Math.max(0,Math.min(cameraX,WORLD-W));
 }
 
-/* DRAW PEOPLE */
 function drawPerson(c,x,y,phase,moving,face,alpha){
  const s=c.size||1;ctx.save();ctx.globalAlpha=alpha===undefined?1:alpha;
  ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(x,y+3,14*s,5*s,0,0,Math.PI*2);ctx.fill();
@@ -345,7 +337,6 @@ function drawChar(c){
  if(c.hitCd>1.4){ctx.fillStyle=`rgba(239,68,68,${(c.hitCd-1.4)*.8})`;ctx.beginPath();ctx.arc(x,y-30,30,0,Math.PI*2);ctx.fill();}
 }
 
-/* DRAW WORLD */
 const STARS=[];for(let i=0;i<70;i++)STARS.push({x:Math.random(),y:Math.random()*.5,tw:Math.random()*6});
 const SKY=[['#fca5a5','#fdba74'],['#7dd3fc','#f0f9ff'],['#f472b6','#7c3aed'],['#020617','#0f172a']];
 function drawSky(){
@@ -425,7 +416,6 @@ function draw(){
  ctx.restore();
 }
 
-/* UI */
 const elName=document.getElementById('ui-name'),elHp=document.getElementById('ui-hp'),elFood=document.getElementById('ui-food'),elScore=document.getElementById('ui-score'),elDay=document.getElementById('ui-day');
 function updateUI(){
  if(selected&&selected.alive){elName.textContent=selected.name+(selected.isGuest?' (Гость)':'');elHp.style.width=selected.hp+'%';elFood.style.width=selected.food+'%';elHp.style.background=selected.hp>50?'#10b981':selected.hp>25?'#f59e0b':'#ef4444';elFood.style.background=selected.food>50?'#f59e0b':'#ef4444';}
@@ -433,7 +423,6 @@ function updateUI(){
  elScore.textContent=score;elDay.textContent=day;
 }
 
-/* INPUT */
 canvas.addEventListener('pointerdown',e=>{
  if(!started||over||paused)return;
  const cx=e.clientX+cameraX,cy=e.clientY;
@@ -445,13 +434,11 @@ canvas.addEventListener('pointerdown',e=>{
 });
 function hideHint(){if(!hintShown){hintShown=true;const h=document.getElementById('hint');h.style.opacity=0;setTimeout(()=>h.style.display='none',1200);}}
 
-/* CONTROLS */
 function startGame(){initAudio();if(AC&&AC.state==='suspended')AC.resume();started=true;document.getElementById('start').style.display='none';sfx.task();toast('👋 Выбери человечка и выполни первое задание!','rgba(56,189,248,.85)');}
 function togglePause(){if(!started||over)return;paused=!paused;document.getElementById('btn-pause').textContent=paused?'▶':'⏸';}
 function toggleSpeed(){speedMul=speedMul===1?2:1;document.getElementById('btn-speed').textContent=speedMul===1?'⏩':'⏪';toast(speedMul===2?'⏩ Скорость x2':'⏩ Скорость x1','rgba(99,102,241,.8)');}
 function restart(){reset();started=true;document.getElementById('start').style.display='none';toast('↻ Новая жизнь семьи!','rgba(56,189,248,.85)');}
 
-/* GUEST SYSTEM (fixed) */
 function buildMyCode(){
  const fam=chars.filter(c=>c.alive&&!c.isGuest);
  const avg=fam.length?Math.floor(fam.reduce((a,c)=>a+c.food,0)/fam.length):0;
@@ -490,7 +477,10 @@ function visitFriend(){
  sfx.done();updateUI();
 }
 
-/* LOOP */
+// Запуск игры после загрузки скрипта
+reset();
+started = false;
+
 let last=performance.now();
 function loop(now){
  const dt=Math.min((now-last)/1000,.05);last=now;
