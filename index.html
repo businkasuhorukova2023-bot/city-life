@@ -69,7 +69,7 @@ canvas{display:block;width:100vw;height:100vh}
 
 <div id="task"></div>
 <div id="toast"></div>
-<div id="hint">👆 Люди живут сами! Тапни человечка → тапни куда идти. Дорогу — по зебре 🦓!</div>
+<div id="hint">👆 Люди живут сами! Тапни человечка → тапни куда идти. 👮 Коп сам ловит бандитов. Дорогу — по зебре 🦓!</div>
 <div id="err"></div>
 <div id="pause-overlay">ПАУЗА</div>
 
@@ -106,10 +106,10 @@ canvas{display:block;width:100vw;height:100vh}
   <div class="sub">СЕМЕЙНЫЙ ГОРОДОК · 2026</div>
   <div class="rules">
    🚶 Семья живёт сама: ходит за хлебом, на огород, к врачу<br>
-   👆 Тапни человечка → тапни куда идти — перехвати управление<br>
+   📋 Задание даёт ДРУГОЙ член семьи и ждёт ТВОЕЙ команды: тапни героя → тапни цель<br>
+   👮 Коп САМ бежит к бандиту и задерживает при касании. Или выбери копа → тапни бандита<br>
    🚗 Машины сбивают! Переходи дорогу по зебре<br>
    🍞 Голод падает — корми семью, иначе 🪦 кладбище<br>
-   👮 Копом лови бандитов: выбери копа → тапни бандита<br>
    🤝 Заходи в гости к друзьям по коду!
   </div>
   <button class="bigbtn" onclick="startGame()">▶ ИГРАТЬ</button>
@@ -186,7 +186,7 @@ function reset(){
  chars=makeChars();
  cars=[{x:200,sp:3.2,dir:1,col:'#ef4444'},{x:1400,sp:2.7,dir:-1,col:'#3b82f6'},{x:2600,sp:3.8,dir:1,col:'#f59e0b'},{x:3600,sp:3,dir:-1,col:'#a855f7'}];
  npcs=[{x:1100,lane:0,tx:1400,sp:1.2,shirt:'#64748b',hair:'#334155',phase:0,face:1},{x:2300,lane:1,tx:2000,sp:1,shirt:'#94a3b8',hair:'#475569',phase:0,face:1},{x:3100,lane:0,tx:3400,sp:1.3,shirt:'#78716c',hair:'#292524',phase:0,face:1}];
- bandits=[];graves=[];particles=[];task=null;score=0;tasksDone=0;day=1;timeOfDay=0.12;tick=0;cameraX=0;shake=0;selected=null;paused=false;over=false;speedMul=1;diffIdx=1;diffMul=1;taskTimer=4;banditTimer=12;
+ bandits=[];graves=[];particles=[];task=null;score=0;tasksDone=0;day=1;timeOfDay=0.12;tick=0;cameraX=0;shake=0;selected=null;paused=false;over=false;speedMul=1;diffIdx=1;diffMul=1;taskTimer=6;banditTimer=25;
  document.getElementById('gameover').style.display='none';
  document.getElementById('pause-overlay').style.display='none';
  document.getElementById('btn-pause').textContent='⏸';
@@ -200,7 +200,7 @@ started=false;
 
 var AC=null,master=null,muted=false;
 function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=muted?0:0.5;master.connect(AC.destination);}catch(e){}}
-function toggleSound(){muted=!muted;if(master)master.gain.value=muted?0:0.5;document.getElementById('btn-sound').textContent=muted?'🔇':'';}
+function toggleSound(){muted=!muted;if(master)master.gain.value=muted?0:0.5;document.getElementById('btn-sound').textContent=muted?'🔇':'🔊';}
 function beep(f,d,type,v,slide){if(!AC||muted)return;try{var o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.value=f;if(slide)o.frequency.exponentialRampToValueAtTime(slide,AC.currentTime+d);g.gain.setValueAtTime(v||.2,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g);g.connect(master);o.start();o.stop(AC.currentTime+d);}catch(e){}}
 function noise(d,v){if(!AC||muted)return;try{var b=AC.createBuffer(1,AC.sampleRate*d,AC.sampleRate),ch=b.getChannelData(0);for(var i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);var s=AC.createBufferSource(),g=AC.createGain();g.gain.value=v||.3;s.buffer=b;s.connect(g);g.connect(master);s.start();}catch(e){}}
 var sfx={select:function(){beep(660,.09,'sine',.15);},task:function(){beep(523,.1,'sine',.15);setTimeout(function(){beep(784,.14,'sine',.15);},90);},done:function(){[523,659,784,1046].forEach(function(f,i){setTimeout(function(){beep(f,.14,'triangle',.16);},i*80);});},hit:function(){noise(.25,.4);beep(120,.3,'sawtooth',.25,60);},die:function(){[392,330,262,196].forEach(function(f,i){setTimeout(function(){beep(f,.3,'sine',.18);},i*160);});},coin:function(){beep(1318,.1,'square',.08);},catch:function(){beep(880,.1,'square',.12);setTimeout(function(){beep(1174,.15,'square',.12);},90);}};
@@ -221,13 +221,14 @@ function newTask(){
  if(over)return;
  var alive=chars.filter(function(c){return c.alive&&!c.isGuest;});if(!alive.length)return;
  var target=(selected&&selected.alive&&!selected.isGuest)?selected:alive[Math.floor(Math.random()*alive.length)];
- var giver=alive[Math.floor(Math.random()*alive.length)];
+ var givers=alive.filter(function(c){return c!==target;});
+ var giver=givers.length?givers[Math.floor(Math.random()*givers.length)]:target;
  var tt=TASK_TYPES[Math.floor(Math.random()*TASK_TYPES.length)];
  var b=null;for(var i=0;i<BUILDINGS.length;i++)if(BUILDINGS[i].type===tt.b)b=BUILDINGS[i];
  task={char:target,type:tt.b,x:b.x+b.w/2,lane:b.lane,label:tt.label,reward:tt.reward,giver:giver.name};
  var el=document.getElementById('task');el.className='';el.style.display='block';
- el.textContent='📋 '+giver.name+' просит '+target.name+': '+tt.label;
- sfx.task();say(target,'📋 задание!');
+ el.textContent='📋 '+giver.name+' просит '+target.name+': '+tt.label+' (тапни героя → тапни цель)';
+ sfx.task();say(target,'📋 жду команду');
 }
 function completeTask(c){
  score+=task.reward;tasksDone++;
@@ -238,7 +239,7 @@ function completeTask(c){
  if(task.type==='hospital')c.hp=100;
  if(task.type==='home'){c.hp=Math.min(100,c.hp+30);c.food=Math.min(100,c.food+15);}
  burst(c.x,laneY(c.lane)-40,'#fbbf24',18,true);sfx.done();sfx.coin();say(c,'✅ готово!');
- task=null;taskTimer=8+Math.random()*6;
+ task=null;taskTimer=12+Math.random()*6;
  if(score>=100&&score-task.reward<100)toast('🌟 Семья процветает! 100 очков','rgba(16,185,129,.85)');
  if(score>=250&&score-task.reward<250)toast('🏆 Семья года! 250 очков','rgba(16,185,129,.85)');
  updateUI();
@@ -264,12 +265,19 @@ function deliverGifts(g){
  if(selected===g)selected=chars.find(function(x){return x.alive&&!x.isGuest;})||null;
  updateUI();
 }
+function arrest(b){
+ b.caught=true;score+=25;sfx.catch();
+ burst(b.x,laneY(0)-30,'#38bdf8',16);
+ toast('👮 Коп задержал бандита! +25 очков','rgba(16,185,129,.85)');
+ updateUI();
+}
 
 function decide(c){
  if(c.isGuest)return;
+ if(c.kind==='cop'&&bandits.length){c.goalLane=0;c.tx=bandits[0].x;say(c,'🚨 ловлю');return;}
  if(c.food<45){goTo(c,'shop');say(c,'🍞 хочу есть');return;}
  if(c.hp<55){goTo(c,'hospital');say(c,'💊 к врачу');return;}
- if(task&&task.char===c){goTo(c,task.type);say(c,'📋 задание');return;}
+ if(task&&task.char===c){say(c,'📋 жду команду');return;}
  var r=Math.random();
  if(c.kind==='dog'||c.kind==='cat'){c.goalLane=c.lane;c.tx=clamp(c.x+(Math.random()-.5)*700,30,WORLD-30);say(c,r<.5?'🐾 гуляю':'🦴 нюхаю');return;}
  if(r<.22){goTo(c,'home');say(c,'🛋 домой');}
@@ -287,9 +295,9 @@ function update(dt){
  var diff=(1+Math.min(day*.06,.8))*diffMul;
  cars.forEach(function(c){var sp=c.sp*diff;ZEBRAS.forEach(function(z){if(Math.abs(c.x-z)<130)sp*=.45;});c.x+=sp*c.dir*dt*60;if(c.dir===1&&c.x>WORLD+200)c.x=-200;if(c.dir===-1&&c.x<-200)c.x=WORLD+200;});
  banditTimer-=dt;
- if(banditTimer<=0&&bandits.length<2){banditTimer=(18+Math.random()*10)/diffMul;bandits.push({x:Math.random()>.5?50:WORLD-50,tx:Math.random()*WORLD,sp:1.6,cd:0,phase:0,face:1});toast('🦹 В городе замечен бандит!','rgba(239,68,68,.8)');}
- bandits.forEach(function(b){var dx=b.tx-b.x;if(Math.abs(dx)>b.sp)b.x+=Math.sign(dx)*b.sp*dt*60;else b.tx=Math.random()*WORLD;b.face=Math.sign(dx)||1;b.phase+=dt*10;b.cd=Math.max(0,b.cd-dt);
-  chars.forEach(function(c){if(c.alive&&!c.isGuest&&c.lane===0&&b.cd<=0&&Math.abs(c.x-b.x)<28){b.cd=3;c.food=Math.max(0,c.food-18);c.hp=Math.max(0,c.hp-6);burst(c.x,laneY(0)-30,'#ef4444',10);toast('🦹 Бандит обокрал '+c.name+'!','rgba(239,68,68,.8)');sfx.hit();}});});
+ if(banditTimer<=0&&bandits.length<1){banditTimer=(30+Math.random()*15)/diffMul;bandits.push({x:Math.random()>.5?50:WORLD-50,tx:Math.random()*WORLD,sp:1.2,cd:0,phase:0,face:1,t:22,caught:false});toast('🦹 Бандит! Коп 👮 сам добежит и задержит, или выбери копа и тапни бандита.','rgba(239,68,68,.8)');}
+ bandits.forEach(function(b){b.t-=dt;var dx=b.tx-b.x;if(Math.abs(dx)>b.sp)b.x+=Math.sign(dx)*b.sp*dt*60;else b.tx=Math.random()*WORLD;b.face=Math.sign(dx)||1;b.phase+=dt*10;b.cd=Math.max(0,b.cd-dt);
+  chars.forEach(function(c){if(c.alive&&!c.isGuest&&c.lane===0&&b.cd<=0&&Math.abs(c.x-b.x)<28){b.cd=6;c.food=Math.max(0,c.food-10);c.hp=Math.max(0,c.hp-4);burst(c.x,laneY(0)-30,'#ef4444',8);toast('🦹 Бандит обокрал '+c.name+'!','rgba(239,68,68,.8)');sfx.hit();}});});
  npcs.forEach(function(n){var dx=n.tx-n.x;if(Math.abs(dx)>n.sp)n.x+=Math.sign(dx)*n.sp*dt*60;else n.tx=200+Math.random()*(WORLD-400);n.face=Math.sign(dx)||1;n.phase+=dt*8;});
 
  chars.forEach(function(c){
@@ -300,6 +308,7 @@ function update(dt){
   c.bubbleT=Math.max(0,c.bubbleT-dt);
   if(!c.isGuest){c.food=Math.max(0,c.food-dt*.5*diff);if(c.food<=0)c.hp=Math.max(0,c.hp-dt*1.4);}
   if(c.hp<=0){die(c);return;}
+  if(c.kind==='cop'&&bandits.length&&c.controlCd<=0){c.goalLane=0;c.tx=bandits[0].x;}
   var moving=false;
   if(c.state==='walk'){var dx=c.tx-c.x;if(Math.abs(dx)>c.speed){c.x+=Math.sign(dx)*c.speed*dt*60;c.face=Math.sign(dx);moving=true;}else{c.x=c.tx;if(c.goalLane!==undefined&&c.goalLane!==c.lane){var z=ZEBRAS.reduce(function(a,b){return Math.abs(b-c.x)<Math.abs(a-c.x)?b:a;});c.crossX=z;c.state='toCross';}else if(c.goalLane!==undefined)c.goalLane=undefined;}}
   else if(c.state==='toCross'){var dx2=c.crossX-c.x;if(Math.abs(dx2)>c.speed){c.x+=Math.sign(dx2)*c.speed*dt*60;c.face=Math.sign(dx2);moving=true;}else{c.x=c.crossX;c.state='cross';c.crossT=0;}}
@@ -312,6 +321,9 @@ function update(dt){
   if(c.state==='walk'&&Math.abs(c.x-c.tx)<2&&c.controlCd<=0){c.ai-=dt;if(c.ai<=0){c.ai=2+Math.random()*4;decide(c);}}
   }catch(e){showErr(e);}
  });
+
+ chars.forEach(function(c){if(c.alive&&c.kind==='cop'&&c.lane===0){bandits.forEach(function(b){if(!b.caught&&Math.abs(c.x-b.x)<34)arrest(b);});}});
+ bandits=bandits.filter(function(b){return b.t>0&&!b.caught;});
 
  chars.forEach(function(g){if(g.alive&&g.isGuest){g.guestT-=dt;if(g.guestT<=0||(g.state==='walk'&&Math.abs(g.x-HOME_X)<50))deliverGifts(g);}});
  chars=chars.filter(function(c){return c.alive||!c.isGuest;});
@@ -473,7 +485,7 @@ function draw(){
 function onTap(px,py){
  if(over||paused)return;
  var cx=px+cameraX,cy=py;
- if(selected&&selected.kind==='cop'){for(var i=0;i<bandits.length;i++){var b=bandits[i];if(Math.abs(cx-b.x)<40&&Math.abs(cy-laneY(0)+24)<60&&Math.abs(selected.x-b.x)<160){bandits.splice(i,1);score+=25;sfx.catch();burst(b.x,laneY(0)-30,'#38bdf8',16);toast('👮 Бандит задержан! +25 очков','rgba(16,185,129,.85)');updateUI();return;}}}
+ if(selected&&selected.kind==='cop'){for(var i=0;i<bandits.length;i++){var b=bandits[i];if(Math.abs(cx-b.x)<44&&Math.abs(cy-laneY(0)+24)<70){selected.goalLane=0;selected.tx=b.x;selected.controlCd=0;say(selected,'🚨 бегу');if(Math.abs(selected.x-b.x)<160)arrest(b);hideHint();return;}}}
  var picked=null;
  chars.forEach(function(c){if(!c.alive)return;var y=c.crossY!==undefined?c.crossY:laneY(c.lane);if(Math.abs(cx-c.x)<34&&Math.abs(cy-(y-28))<52)picked=c;});
  if(picked){selected=picked;sfx.select();updateUI();hideHint();return;}
@@ -485,7 +497,7 @@ function hideHint(){if(!hintShown){hintShown=true;var h=document.getElementById(
 
 function startGame(){initAudio();if(AC&&AC.state==='suspended')AC.resume();started=true;document.getElementById('start').style.display='none';sfx.task();toast('👋 Люди уже живут! Тапни человечка, чтобы управлять.','rgba(56,189,248,.85)');}
 function togglePause(){if(over)return;paused=!paused;document.getElementById('btn-pause').textContent=paused?'▶':'⏸';document.getElementById('pause-overlay').style.display=paused?'flex':'none';}
-function toggleSpeed(){speedMul=speedMul===1?2:1;document.getElementById('btn-speed').textContent=speedMul===1?'⏩':'';toast(speedMul===2?'⏩ Скорость x2':'⏩ Скорость x1','rgba(99,102,241,.8)');}
+function toggleSpeed(){speedMul=speedMul===1?2:1;document.getElementById('btn-speed').textContent=speedMul===1?'⏩':'⏪';toast(speedMul===2?'⏩ Скорость x2':'⏩ Скорость x1','rgba(99,102,241,.8)');}
 function toggleDiff(){diffIdx=(diffIdx+1)%3;diffMul=DIFFS[diffIdx].m;document.getElementById('btn-diff').textContent=DIFFS[diffIdx].icon;toast('🎚 Сложность: '+DIFFS[diffIdx].name,'rgba(99,102,241,.8)');}
 function restart(){reset();started=true;document.getElementById('start').style.display='none';toast('↻ Новая жизнь семьи!','rgba(56,189,248,.85)');}
 
