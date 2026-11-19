@@ -26,7 +26,7 @@ canvas{display:block;width:100vw;height:100vh}
 #hint{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.9);padding:8px 16px;border-radius:16px;font-size:12px;color:#334155;pointer-events:none;z-index:9;transition:opacity 1s;max-width:90%;text-align:center}
 #toast{position:absolute;top:130px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:16px;font-size:13px;font-weight:700;color:#fff;z-index:12;pointer-events:none;opacity:0;transition:opacity .3s;max-width:90%;text-align:center}
 #err{position:absolute;bottom:2px;left:4px;color:#f87171;font-size:10px;z-index:40;pointer-events:none;max-width:96%;display:none}
-.overlay{position:absolute;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.overlay{position:absolute;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
 .overlay::-webkit-scrollbar{width:8px}
 .overlay::-webkit-scrollbar-track{background:rgba(255,255,255,.06)}
 .overlay::-webkit-scrollbar-thumb{background:#38bdf8;border-radius:8px}
@@ -130,11 +130,13 @@ canvas{display:block;width:100vw;height:100vh}
 "use strict";
 var canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 var W=0,H=0,DPR=1,ERR='';
-function showErr(e){ERR=(e&&e.message)?e.message:String(e);var el=document.getElementById('err');el.textContent='⚠ '+ERR;el.style.display='block';}
+function showErr(e){ERR=(e&&e.message)?e.message:String(e);var el=document.getElementById('err');if(el){el.textContent='⚠ '+ERR;el.style.display='block';}}
 function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=window.innerWidth;H=window.innerHeight;canvas.width=Math.max(1,W*DPR);canvas.height=Math.max(1,H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);}
 window.addEventListener('resize',resize);resize();
 
-/* safe shape helpers (no native roundRect / ellipse reliance) */
+/* UI refs FIRST (fix: were read before creation) */
+var elName=document.getElementById('ui-name'),elHp=document.getElementById('ui-hp'),elFood=document.getElementById('ui-food'),elScore=document.getElementById('ui-score'),elDay=document.getElementById('ui-day');
+
 function rr(x,y,w,h,r){r=Math.max(0,Math.min(r,w/2,h/2));ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function ell(x,y,rx,ry){ctx.save();ctx.translate(x,y);ctx.scale(Math.max(.01,rx),Math.max(.01,ry));ctx.beginPath();ctx.arc(0,0,1,0,Math.PI*2);ctx.restore();}
 function circ(x,y,r){ctx.beginPath();ctx.arc(x,y,Math.max(.01,r),0,Math.PI*2);}
@@ -171,6 +173,13 @@ function makeChars(){return [
  {name:'Коп',kind:'cop',x:1850,lane:0,tx:1850,hp:100,food:100,alive:true,speed:2.6,size:1,shirt:'#1e40af',pants:'#172554',skin:'#fcd7b0',hair:'#27272a',phase:0,face:1,state:'walk',crossT:0,hitCd:0,ai:1,bubble:'',bubbleT:0,controlCd:0}
 ];}
 
+function updateUI(){
+ if(!elName)return;
+ if(selected&&selected.alive){elName.textContent=selected.name+(selected.isGuest?' (Гость)':'');elHp.style.width=selected.hp+'%';elFood.style.width=selected.food+'%';elHp.style.background=selected.hp>50?'#10b981':selected.hp>25?'#f59e0b':'#ef4444';elFood.style.background=selected.food>50?'#f59e0b':'#ef4444';}
+ else{elName.textContent='—';elHp.style.width='0%';elFood.style.width='0%';}
+ elScore.textContent=score;elDay.textContent=day;
+}
+
 function reset(){
  chars=makeChars();
  cars=[{x:200,sp:3.2,dir:1,col:'#ef4444'},{x:1400,sp:2.7,dir:-1,col:'#3b82f6'},{x:2600,sp:3.8,dir:1,col:'#f59e0b'},{x:3600,sp:3,dir:-1,col:'#a855f7'}];
@@ -183,7 +192,8 @@ function reset(){
  document.getElementById('task').style.display='none';
  updateUI();
 }
-reset();started=false;
+try{reset();}catch(e){showErr(e);}
+started=false;
 
 /* AUDIO */
 var AC=null,master=null,muted=false;
@@ -370,7 +380,7 @@ function drawChar(c){
  var moving=Math.abs(c.x-c.tx)>1||c.state!=='walk';
  if(c.kind==='dog'||c.kind==='cat')drawAnimal(c,x,y,c.phase,moving,c.face);else drawPerson(c,x,y,c.phase,moving,c.face);
  if(c.bubbleT>0&&c.bubble){ctx.save();ctx.globalAlpha=Math.min(1,c.bubbleT);ctx.font='700 11px Arial';var tw=ctx.measureText(c.bubble).width+14;ctx.fillStyle='rgba(255,255,255,.95)';rr(x-tw/2,y-84*c.size,tw,20,10);ctx.fill();ctx.fillStyle='#0f172a';ctx.textAlign='center';ctx.fillText(c.bubble,x,y-70*c.size);ctx.restore();}
- if(c===selected){ctx.strokeStyle=c.isGuest?'#10b981':'#38bdf8';ctx.lineWidth=2.5;ctx.setLineDash([6,5]);ctx.lineDashOffset=-tick*.4;ell(x,y+3,22,9);ctx.stroke();ctx.setLineDash([]);
+ if(c===selected){ctx.strokeStyle=c.isGuest?'#10b981':'#38bdf8';ctx.lineWidth=2.5;if(ctx.setLineDash){ctx.setLineDash([6,5]);ctx.lineDashOffset=-tick*.4;}ell(x,y+3,22,9);ctx.stroke();if(ctx.setLineDash)ctx.setLineDash([]);
   ctx.fillStyle='#fff';ctx.font='700 12px Arial';ctx.textAlign='center';ctx.fillText(c.name,x,y-62*c.size);
   ctx.fillStyle='rgba(0,0,0,.4)';rr(x-20,y-58*c.size,40,4,2);ctx.fill();
   ctx.fillStyle=c.hp>50?'#10b981':'#ef4444';rr(x-20,y-58*c.size,40*c.hp/100,4,2);ctx.fill();}
@@ -463,14 +473,6 @@ function draw(){
  try{drawPin();drawParticles();}catch(e){showErr(e);}
  var n=nightAmt();if(n>0){ctx.fillStyle='rgba(2,6,23,'+(n*.28)+')';ctx.fillRect(0,0,W,H);}
  ctx.restore();
-}
-
-/* UI */
-var elName=document.getElementById('ui-name'),elHp=document.getElementById('ui-hp'),elFood=document.getElementById('ui-food'),elScore=document.getElementById('ui-score'),elDay=document.getElementById('ui-day');
-function updateUI(){
- if(selected&&selected.alive){elName.textContent=selected.name+(selected.isGuest?' (Гость)':'');elHp.style.width=selected.hp+'%';elFood.style.width=selected.food+'%';elHp.style.background=selected.hp>50?'#10b981':selected.hp>25?'#f59e0b':'#ef4444';elFood.style.background=selected.food>50?'#f59e0b':'#ef4444';}
- else{elName.textContent='—';elHp.style.width='0%';elFood.style.width='0%';}
- elScore.textContent=score;elDay.textContent=day;
 }
 
 /* INPUT */
