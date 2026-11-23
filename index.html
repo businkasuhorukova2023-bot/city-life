@@ -8,14 +8,18 @@
 <meta name="theme-color" content="#0b1020">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="City Life">
-<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%2387ceeb'/><stop offset='1' stop-color='%23f0e68c'/></linearGradient></defs><rect width='192' height='192' rx='40' fill='url(%23sky)'/><circle cx='150' cy='40' r='22' fill='%23ffd700'/><path d='M0 140 Q50 130 100 140 T192 140 L192 192 L0 192 Z' fill='%234caf50'/><rect x='30' y='90' width='50' height='50' fill='%23b45309'/><polygon points='25,90 55,60 85,90' fill='%23dc2626'/><rect x='40' y='105' width='12' height='15' fill='%23fde047'/><rect x='60' y='105' width='12' height='15' fill='%23fde047'/><rect x='48' y='120' width='16' height='20' fill='%233f2d1d'/><circle cx='110' cy='125' r='8' fill='%23fbbf24'/><rect x='108' y='133' width='4' height='15' fill='%23fbbf24'/><circle cx='130' cy='120' r='6' fill='%23ec4899'/><rect x='128' y='126' width='4' height='12' fill='%23ec4899'/><circle cx='145' cy='118' r='5' fill='%233b82f6'/><rect x='143' y='123' width='4' height='10' fill='%233b82f6'/><circle cx='20' cy='110' r='18' fill='%2322c55e'/><rect x='18' y='125' width='4' height='20' fill='%2378350f'/><circle cx='170' cy='105' r='20' fill='%2322c55e'/><rect x='168' y='122' width='4' height='25' fill='%2378350f'/></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;-webkit-tap-highlight-color:transparent}
 html,body{overflow:hidden;background:#0b1020;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas{display:block;width:100vw;height:100vh;touch-action:none}
 .glass{background:rgba(11,16,32,.66);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(120,160,255,.16);box-shadow:0 10px 30px rgba(0,0,0,.4)}
-#ui{position:absolute;top:10px;left:10px;right:10px;color:#fff;padding:9px 14px;border-radius:18px;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none;z-index:10;flex-wrap:wrap}
+#ui{position:absolute;top:10px;left:10px;right:10px;color:#fff;padding:9px 14px;border-radius:18px;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none;z-index:10;flex-wrap:wrap;transition:all .3s ease}
+#ui.collapsed{padding:5px 10px}
+#ui.collapsed .stat-name,#ui.collapsed .bar-bg{display:none}
+#ui.collapsed .stat-val{font-size:11px;margin-top:0}
+#ui-toggle{pointer-events:auto;background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 8px;border-radius:8px;cursor:pointer;font-size:11px}
 .stat-name{font-size:9px;color:#8fa3c8;text-transform:uppercase;font-weight:700;letter-spacing:.6px}
 .stat-val{font-size:14px;font-weight:800;margin-top:2px}
 .bar-bg{width:80px;height:6px;background:rgba(255,255,255,.14);border-radius:10px;margin-top:5px;overflow:hidden}
@@ -92,26 +96,25 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
  <div><div class="stat-name">Очки</div><div class="stat-val" id="ui-score" style="color:#38bdf8">0</div></div>
  <div><div class="stat-name">День</div><div class="stat-val" id="ui-day" style="color:#a78bfa">1</div></div>
  <button id="btn-sound" onclick="toggleSound()">🔊</button>
+ <button id="ui-toggle" onclick="toggleUI()">▼</button>
 </div>
 
 <div id="camcol">
  <button class="cbtn glass" onclick="setZoom(zoom*1.2)">＋</button>
  <button class="cbtn glass" onclick="setZoom(zoom/1.2)">－</button>
  <button class="cbtn glass" id="btn-follow" onclick="toggleFollow()">🎥</button>
- <!-- ШЕСТЕРЁНКА — открывает меню со всеми настройками -->
- <button class="cbtn glass" onclick="openSettings()" title="Меню">⚙️</button>
+ <button class="cbtn glass" onclick="openSettings()">⚙️</button>
  <button class="cbtn glass" id="btn-install" onclick="installApp()" style="display:none">📲</button>
 </div>
 
 <div id="task"></div>
 <div id="toast"></div>
-<div id="hint">👆 Тапни героя → тапни место. 🔄 Поверни телефон боком. ⚙️ — меню.</div>
+<div id="hint">👆 Тапни героя → тапни место. 🔄 Поверни телефон боком. ⚙️ — меню. ▼ — свернуть панель.</div>
 <div id="err"></div>
 <div id="pause-overlay">ПАУЗА</div>
 
 <button id="btn-task" onclick="newTask()">✨ Задание</button>
 
-<!-- МЕНЮ НАСТРОЕК (открывается по шестерёнке) -->
 <div class="overlay" id="settings-menu" style="display:none;z-index:30">
  <div class="panel glass" style="max-width:420px;padding:22px">
   <h2 style="color:#38bdf8;margin-bottom:14px;font-size:22px">⚙️ Меню</h2>
@@ -201,6 +204,7 @@ function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=window.innerWidth
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',function(){setTimeout(resize,200);});resize();
 function setZoom(z){z=Math.max(.6,Math.min(2.2,z));var cx=cameraX+VW/2;zoom=z;VW=W/zoom;VH=H/zoom;cameraX=Math.max(0,Math.min(cx-VW/2,WORLD-VW));}
 function toggleFollow(){follow=!follow;document.getElementById('btn-follow').style.background=follow?'rgba(56,189,248,.4)':'rgba(11,16,32,.66)';}
+function toggleUI(){var ui=document.getElementById('ui');ui.classList.toggle('collapsed');var btn=document.getElementById('ui-toggle');btn.textContent=ui.classList.contains('collapsed')?'▲':'▼';}
 var elName=document.getElementById('ui-name'),elHp=document.getElementById('ui-hp'),elFood=document.getElementById('ui-food'),elScore=document.getElementById('ui-score'),elGoal=document.getElementById('ui-goal'),elDay=document.getElementById('ui-day'),elLevel=document.getElementById('ui-level'),elCoins=document.getElementById('ui-coins'),elStreak=document.getElementById('ui-streak');
 function rr(x,y,w,h,r){r=Math.max(0,Math.min(r,w/2,h/2));ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function ell(x,y,rx,ry){ctx.save();ctx.translate(x,y);ctx.scale(Math.max(.01,rx),Math.max(.01,ry));ctx.beginPath();ctx.arc(0,0,1,0,Math.PI*2);ctx.restore();}
@@ -277,7 +281,7 @@ function bByType(t){for(var i=0;i<BUILDINGS.length;i++)if(BUILDINGS[i].type===t)
 function mgByType(t){for(var i=0;i<MINIGAMES.length;i++)if(MINIGAMES[i].type===t)return MINIGAMES[i];return null;}
 function float(x,y,txt,col){floats.push({x:x,y:y,txt:txt,col:col||'#fbbf24',life:1.4});if(floats.length>40)floats.splice(0,floats.length-40);}
 function updateUI(){if(!elName)return;if(selected&&selected.alive){elName.textContent=selected.name+(selected.isGuest?' (Гость)':'');elHp.style.width=selected.hp+'%';elFood.style.width=selected.food+'%';elHp.style.background=selected.hp>50?'#10b981':selected.hp>25?'#f59e0b':'#ef4444';elFood.style.background=selected.food>50?'#f59e0b':'#ef4444';}else{elName.textContent='—';elHp.style.width='0%';elFood.style.width='0%';}elScore.textContent=score;elCoins.textContent=coins;elLevel.textContent=level;elDay.textContent=day;elStreak.textContent=streak;elGoal.textContent=levelTasks+'/'+LEVEL_TARGET[level-1];}
-function reset(){chars=makeChars();cars=[{x:200,sp:3.2,dir:1,col:'#ef4444',stopped:false},{x:1400,sp:2.7,dir:-1,col:'#3b82f6',stopped:false},{x:2600,sp:3.8,dir:1,col:'#f59e0b',stopped:false},{x:3600,sp:3,dir:-1,col:'#a855f7',stopped:false},{x:4500,sp:3.5,dir:1,col:'#10b981',stopped:false}];npcs=[{x:1100,lane:0,tx:1400,sp:1.2,shirt:'#64748b',hair:'#334155',phase:0,face:1},{x:2300,lane:1,tx:2000,sp:1,shirt:'#94a3b8',hair:'#475569',phase:0,face:1},{x:3100,lane:0,tx:3400,sp:1.3,shirt:'#78716c',hair:'#292524',phase:0,face:1},{x:4200,lane:1,tx:4500,sp:1.1,shirt:'#475569',hair:'#1e293b',phase:0,face:1}];bandits=[];graves=[];particles=[];floats=[];task=null;emergency=null;mini=null;miniPending=null;copTimer=0;score=0;coins=0;tasksDone=0;level=1;levelTasks=0;streak=0;day=1;timeOfDay=0.12;tick=0;cameraX=0;shake=0;selected=null;paused=false;over=false;won=false;speedMul=1;diffIdx=1;diffMul=1;taskTimer=5;banditTimer=25;emergTimer=999999;rainT=0;activeZ={};hitStop=0;flash=0;musicT=0;follow=true;zoom=1;VW=W;VH=H;BUILDINGS.forEach(function(b){b.build=b.unlock<=1?1:0;b.miniCd=0;});upgrades={fridge:0,bike:0,medkit:0,fence:0,garden:0,rocket:0};document.getElementById('gameover').style.display='none';document.getElementById('win').style.display='none';document.getElementById('upgrades').style.display='none';document.getElementById('quest').style.display='none';document.getElementById('mini-menu').style.display='none';document.getElementById('settings-menu').style.display='none';document.getElementById('pause-overlay').style.display='none';document.getElementById('btn-pause')&&(document.getElementById('btn-pause').textContent='⏸');document.getElementById('btn-speed')&&(document.getElementById('btn-speed').textContent='⏩');document.getElementById('btn-diff')&&(document.getElementById('btn-diff').textContent='🙂');document.getElementById('btn-follow').style.background='rgba(56,189,248,.4)';document.getElementById('task').style.display='none';updateUI();}
+function reset(){chars=makeChars();cars=[{x:200,sp:3.2,dir:1,col:'#ef4444',stopped:false},{x:1400,sp:2.7,dir:-1,col:'#3b82f6',stopped:false},{x:2600,sp:3.8,dir:1,col:'#f59e0b',stopped:false},{x:3600,sp:3,dir:-1,col:'#a855f7',stopped:false},{x:4500,sp:3.5,dir:1,col:'#10b981',stopped:false}];npcs=[{x:1100,lane:0,tx:1400,sp:1.2,shirt:'#64748b',hair:'#334155',phase:0,face:1},{x:2300,lane:1,tx:2000,sp:1,shirt:'#94a3b8',hair:'#475569',phase:0,face:1},{x:3100,lane:0,tx:3400,sp:1.3,shirt:'#78716c',hair:'#292524',phase:0,face:1},{x:4200,lane:1,tx:4500,sp:1.1,shirt:'#475569',hair:'#1e293b',phase:0,face:1}];bandits=[];graves=[];particles=[];floats=[];task=null;emergency=null;mini=null;miniPending=null;copTimer=0;score=0;coins=0;tasksDone=0;level=1;levelTasks=0;streak=0;day=1;timeOfDay=0.12;tick=0;cameraX=0;shake=0;selected=null;paused=false;over=false;won=false;speedMul=1;diffIdx=1;diffMul=1;taskTimer=5;banditTimer=25;emergTimer=999999;rainT=0;activeZ={};hitStop=0;flash=0;musicT=0;follow=true;zoom=1;VW=W;VH=H;BUILDINGS.forEach(function(b){b.build=b.unlock<=1?1:0;b.miniCd=0;});upgrades={fridge:0,bike:0,medkit:0,fence:0,garden:0,rocket:0};document.getElementById('gameover').style.display='none';document.getElementById('win').style.display='none';document.getElementById('upgrades').style.display='none';document.getElementById('quest').style.display='none';document.getElementById('mini-menu').style.display='none';document.getElementById('settings-menu').style.display='none';document.getElementById('pause-overlay').style.display='none';document.getElementById('btn-follow').style.background='rgba(56,189,248,.4)';document.getElementById('task').style.display='none';updateUI();}
 try{reset();}catch(e){showErr(e);}
 started=false;
 var AC=null,master=null,muted=false;
@@ -381,7 +385,7 @@ function openSettings(){
  var items=[
   {ic:'🤝',name:'Друзья и гости',desc:'Обменивайся кодами',fn:openFriendMenu},
   {ic:'🛠',name:'Улучшения и найм',desc:'Монеты: '+coins+'🪙',fn:openUpgrades},
-  {ic:'🎮',name:'Миниигры',desc:'5 видов заданий',fn:openMiniMenu},
+  {ic:'🎮',name:'Миниигры',desc:'9 видов заданий',fn:openMiniMenu},
   {ic:'📜',name:'Журнал города',desc:'Уровень '+level+'/'+MAXLEVEL,fn:openQuest},
   {ic:paused?'▶':'⏸',name:paused?'Продолжить':'Пауза',desc:'Остановить игру',fn:togglePause},
   {ic:'⏩',name:'Скорость: '+(speedMul===1?'x1':'x2'),desc:'Ускорить время',fn:toggleSpeed},
@@ -410,7 +414,7 @@ function iconSVG(sz){return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns
 var deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;document.getElementById('btn-install').style.display='flex';});
 window.addEventListener('appinstalled',function(){deferredPrompt=null;document.getElementById('btn-install').style.display='none';toast('📲 City Life установлен!','rgba(16,185,129,.85)');});
-function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(function(){deferredPrompt=null;document.getElementById('btn-install').style.display='none';});}else toast('📲 Телефон: меню браузера → «Добавить на главный экран». ПК: меню → «Установить приложение».','rgba(56,189,248,.85)');}
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(function(){deferredPrompt=null;document.getElementById('btn-install').style.display='none';});}else toast('📲 Телефон: меню браузера → «Установить приложение». ПК: меню → «Установить».','rgba(56,189,248,.85)');}
 var last=performance.now(),acc=0,STEP=1/60;
 function loop(now){requestAnimationFrame(loop);var rdt=Math.min((now-last)/1000,.1);last=now;acc+=rdt;var steps=0;while(acc>=STEP&&steps<5){if(!paused&&!over){if(hitStop>0){hitStop-=STEP;}else{try{update(STEP*speedMul);}catch(e){showErr(e);}}}acc-=STEP;steps++;}if(steps>=5)acc=0;try{draw();}catch(e){showErr(e);}try{updateUI();}catch(e){}}
 requestAnimationFrame(loop);
