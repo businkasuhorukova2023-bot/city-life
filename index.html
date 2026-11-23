@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>City Life — Семейный городок</title>
-<meta name="description" content="City Life — живая 2D-игра про семью и город: 8 уровней, стройка, небоскрёб, миниигры, гости и улучшения. Играй в браузере или установи как приложение.">
+<meta name="description" content="City Life — живая 2D-игра про семью и город: 8 уровней, стройка, небоскрёб, миниигры, гости и улучшения.">
 <meta property="og:title" content="City Life — Семейный городок">
-<meta property="og:description" content="Живой городок: семья, стройка, небоскрёб, миниигры и 8 уровней. Играй бесплатно в браузере.">
+<meta property="og:description" content="Живой городок: семья, стройка, небоскрёб, миниигры и 8 уровней.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#0b1020">
 <meta name="mobile-web-app-capable" content="yes">
@@ -24,8 +24,7 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
 .bar-bg{width:80px;height:6px;background:rgba(255,255,255,.14);border-radius:10px;margin-top:5px;overflow:hidden}
 .bar-fill{height:100%;border-radius:10px;transition:width .25s ease}
 #btn-sound{pointer-events:auto;width:38px;height:38px;border-radius:50%;border:1px solid rgba(120,160,255,.3);background:rgba(56,189,248,.25);color:#fff;font-size:16px;cursor:pointer}
-/* ИСПРАВЛЕНИЕ 1: Кнопки зума перенесены вниз, чтобы не мешать */
-#camcol{position:absolute;bottom:80px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:11}
+#camcol{position:absolute;top:90px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:11}
 #task{position:absolute;top:100px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);color:#0b1020;padding:9px 18px;border-radius:30px;font-weight:700;font-size:12px;box-shadow:0 10px 25px rgba(0,0,0,.3);z-index:10;pointer-events:none;max-width:92%;text-align:center;display:none;border:1px solid rgba(255,255,255,.6)}
 #task.done{background:#dcfce7;color:#166534}
 #task.urgent{background:#fee2e2;color:#991b1b}
@@ -69,13 +68,20 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
 .qbar i{display:block;height:100%;background:linear-gradient(90deg,#38bdf8,#a78bfa);border-radius:8px}
 @media(max-width:600px){
  .bar-bg{width:56px}.stat-val{font-size:12px}#ui{padding:7px 10px}.panel h1{font-size:25px}
- #controls{bottom:12px;right:8px;gap:5px}
+ #controls{bottom:64px;right:8px;gap:5px}
  #btn-task{bottom:12px;left:10px;padding:11px 18px;font-size:12px}
  .cbtn{width:42px;height:42px;font-size:16px}
- #hint{bottom:130px}
+ #hint{bottom:116px}
  #pause-overlay{font-size:30px}
  #task{top:112px}
- #camcol{bottom:130px}
+ #camcol{top:90px}
+}
+@media(orientation:landscape){
+ #camcol{top:80px}
+ #task{top:78px}
+ #controls{bottom:10px}
+ #btn-task{bottom:10px}
+ #hint{bottom:60px}
 }
 </style>
 </head>
@@ -104,8 +110,7 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
 
 <div id="task"></div>
 <div id="toast"></div>
-<!-- ИСПРАВЛЕНИЕ 4: Текст изменён на "пальцем" -->
-<div id="hint">👆 Тапни героя → тапни цель. 🎮 — миниигры. Тяни пальцем — осмотреть, ＋－ — зум, 🎥 — следовать. 👮 Коп погиб? Новый сам или найм 40🪙.</div>
+<div id="hint">👆 Тапни героя → тапни место, куда идти. 🎮 — миниигры. Тяни пальцем вбок — осмотреть, ＋－ — зум. 🔄 Поверни телефон боком — будет на весь экран.</div>
 <div id="err"></div>
 <div id="pause-overlay">ПАУЗА</div>
 
@@ -163,9 +168,9 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
   <div class="sub">СЕМЕЙНЫЙ ГОРОДОК · 8 УРОВНЕЙ · НЕБОСКРЁБ · МИНИИГРЫ</div>
   <div class="rules">
    🎯 8 уровней: цели и стройка (колодец→лес→парк→школа→гараж→кафе→🏙 небоскрёб)<br>
-   🎮 Миниигры: кнопка 🎮 или значок 🎮 над зданием (урожай, вода, дрова, готовка, лифт, пожар)<br>
+   🎮 Миниигры: кнопка 🎮 или значок 🎮 над зданием (урожай, вода, дрова, готовка, лифт)<br>
    👮 Коп ловит бандитов; погиб — новый через 18с или найм 40🪙 (участок / 🛠)<br>
-   👆 Тапни героя → тапни цель; тяни пальцем — осмотреть город<br>
+   👆 Тапни героя → тапни место, куда идти; тяни пальцем вбок — осмотреть город<br>
    🧩 Цепочки заданий; 🛠 улучшения; 🔥 комбо; 🌧 дождь; 🌙 ночь<br>
    🚗 Машины стоят у зебры · 🍞 корми семью, иначе 🪦<br>
    📲 Установи как приложение — играет офлайн<br>
@@ -200,7 +205,7 @@ var canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 var W=0,H=0,DPR=1,zoom=1,VW=0,VH=0,ERR='',follow=true,hitStop=0,flash=0;
 function showErr(e){ERR=(e&&e.message)?e.message:String(e);var el=document.getElementById('err');if(el){el.textContent='⚠ '+ERR;el.style.display='block';}}
 function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=window.innerWidth;H=window.innerHeight;VW=W/zoom;VH=H/zoom;canvas.width=Math.max(1,W*DPR);canvas.height=Math.max(1,H*DPR);}
-window.addEventListener('resize',resize);resize();
+window.addEventListener('resize',resize);window.addEventListener('orientationchange',function(){setTimeout(resize,200);});resize();
 function setZoom(z){z=Math.max(.6,Math.min(2.2,z));var cx=cameraX+VW/2;zoom=z;VW=W/zoom;VH=H/zoom;cameraX=Math.max(0,Math.min(cx-VW/2,WORLD-VW));}
 function toggleFollow(){follow=!follow;document.getElementById('btn-follow').style.background=follow?'rgba(56,189,248,.4)':'rgba(11,16,32,.66)';}
 var elName=document.getElementById('ui-name'),elHp=document.getElementById('ui-hp'),elFood=document.getElementById('ui-food'),elScore=document.getElementById('ui-score'),elGoal=document.getElementById('ui-goal'),elDay=document.getElementById('ui-day'),elLevel=document.getElementById('ui-level'),elCoins=document.getElementById('ui-coins'),elStreak=document.getElementById('ui-streak');
@@ -289,7 +294,7 @@ function reset(){
  chars=makeChars();
  cars=[{x:200,sp:3.2,dir:1,col:'#ef4444',stopped:false},{x:1400,sp:2.7,dir:-1,col:'#3b82f6',stopped:false},{x:2600,sp:3.8,dir:1,col:'#f59e0b',stopped:false},{x:3600,sp:3,dir:-1,col:'#a855f7',stopped:false}];
  npcs=[{x:1100,lane:0,tx:1400,sp:1.2,shirt:'#64748b',hair:'#334155',phase:0,face:1},{x:2300,lane:1,tx:2000,sp:1,shirt:'#94a3b8',hair:'#475569',phase:0,face:1},{x:3100,lane:0,tx:3400,sp:1.3,shirt:'#78716c',hair:'#292524',phase:0,face:1}];
- bandits=[];graves=[];particles=[];floats=[];task=null;emergency=null;mini=null;miniPending=null;copTimer=0;score=0;coins=0;tasksDone=0;level=1;levelTasks=0;streak=0;day=1;timeOfDay=0.12;tick=0;cameraX=0;shake=0;selected=null;paused=false;over=false;won=false;speedMul=1;diffIdx=1;diffMul=1;taskTimer=5;banditTimer=25;emergTimer=35;rainT=0;activeZ={};hitStop=0;flash=0;musicT=0;follow=true;zoom=1;VW=W;VH=H;
+ bandits=[];graves=[];particles=[];floats=[];task=null;emergency=null;mini=null;miniPending=null;copTimer=0;score=0;coins=0;tasksDone=0;level=1;levelTasks=0;streak=0;day=1;timeOfDay=0.12;tick=0;cameraX=0;shake=0;selected=null;paused=false;over=false;won=false;speedMul=1;diffIdx=1;diffMul=1;taskTimer=5;banditTimer=25;emergTimer=999999;rainT=0;activeZ={};hitStop=0;flash=0;musicT=0;follow=true;zoom=1;VW=W;VH=H;
  BUILDINGS.forEach(function(b){b.build=b.unlock<=1?1:0;b.miniCd=0;});
  upgrades={fridge:0,bike:0,medkit:0,fence:0,garden:0};
  document.getElementById('gameover').style.display='none';
@@ -412,14 +417,9 @@ function deliverGifts(g){
  if(selected===g)selected=chars.find(function(x){return x.alive&&!x.isGuest;})||null;updateUI();
 }
 function arrest(b){b.caught=true;score+=25;coins+=15;sfx.catch();burst(b.x,laneY(0)-30,'#38bdf8',16);float(b.x,laneY(0)-70,'+25 👮','#38bdf8');toast('👮 Бандит задержан! +25 +15🪙','rgba(16,185,129,.85)');updateUI();}
-function spawnEmergency(){
- var opts=BUILDINGS.filter(function(b){return unlocked(b)&&b.type!=='grave'&&b.type!=='home'&&b.type!=='tower';});
- if(!opts.length)return;var b=opts[Math.floor(Math.random()*opts.length)];
- emergency={type:'fire',b:b,x:b.x+b.w/2,lane:b.lane,t:26,responder:null,mode:'run',progress:0};
- sfx.alarm();toast('🔥 ПОЖАР: '+b.name+'! Тапни огонь — семья побежит тушить.','rgba(239,68,68,.9)');
-}
-function resolveEmergency(){score+=30;coins+=30;float(emergency.x,laneY(emergency.lane)-80,'+30 🧯','#10b981');emergency=null;sfx.done();confetti();toast('🧯 Потушено! +30 +30🪙','rgba(16,185,129,.85)');updateUI();}
-function failEmergency(){chars.forEach(function(c){if(c.alive&&!c.isGuest)c.hp=Math.max(0,c.hp-12);});shake=16;sfx.hit();toast('🔥 Не потушили! -12 HP','rgba(239,68,68,.9)');emergency=null;updateUI();}
+function spawnEmergency(){return;}
+function resolveEmergency(){}
+function failEmergency(){}
 function startMini(mg){
  var b=bByType(mg.type);
  if(!b||!unlocked(b))return toast('🔒 Откроется на уровне '+mg.unlock+'.','rgba(239,68,68,.85)');
@@ -446,7 +446,6 @@ function finishMini(){
 function decide(c){
  if(c.isGuest)return;
  if(c.kind==='cop'&&bandits.length){c.goalLane=0;c.tx=bandits[0].x;say(c,'🚨 ловлю');return;}
- if(emergency&&emergency.mode==='run'&&!emergency.responder&&c.kind!=='dog'&&c.kind!=='cat'){emergency.responder=c;c.goalLane=emergency.lane;c.tx=emergency.x;say(c,'🧯 тушу');return;}
  if(c.food<45){goTo(c,'shop');say(c,'🍞 хочу есть');return;}
  if(c.hp<55){goTo(c,'hospital');say(c,'💊 к врачу');return;}
  if(task&&task.char===c){say(c,'📋 жду команду');return;}
@@ -482,13 +481,6 @@ function update(dt){
  bandits.forEach(function(b){b.t-=dt;var dx=b.tx-b.x;if(Math.abs(dx)>b.sp)b.x+=Math.sign(dx)*b.sp*dt*60;else b.tx=Math.random()*WORLD;b.face=Math.sign(dx)||1;b.phase+=dt*10;b.cd=Math.max(0,b.cd-dt);
   chars.forEach(function(c){if(c.alive&&!c.isGuest&&c.lane===0&&b.cd<=0&&Math.abs(c.x-b.x)<28){b.cd=6;var dmg=upgrades.fence?.5:1;c.food=Math.max(0,c.food-10*dmg);c.hp=Math.max(0,c.hp-4*dmg);burst(c.x,laneY(0)-30,'#ef4444',8);toast('🦹 Обокрал '+c.name+'!','rgba(239,68,68,.8)');sfx.hit();}});});
  npcs.forEach(function(n){var dx=n.tx-n.x;if(Math.abs(dx)>n.sp)n.x+=Math.sign(dx)*n.sp*dt*60;else n.tx=200+Math.random()*(WORLD-400);n.face=Math.sign(dx)||1;n.phase+=dt*8;});
- if(emergency){emergency.t-=dt;
-  if(emergency.mode==='run'&&emergency.responder&&emergency.responder.alive&&emergency.responder.state==='walk'&&emergency.responder.lane===emergency.lane&&Math.abs(emergency.responder.x-emergency.x)<55){emergency.mode='mash';toast('👆 ТАПАЙ огонь быстро!','rgba(251,191,36,.9)');}
-  if(emergency.mode==='mash'){emergency.progress=Math.max(0,emergency.progress-dt*6)+(emergency.responder&&emergency.responder.alive?dt*3:0);if(emergency.progress>=100)resolveEmergency();}
-  if(emergency&&emergency.t<=0)failEmergency();
-  if(emergency&&Math.random()<dt*8)particles.push({x:emergency.x+(Math.random()-.5)*40,y:laneY(emergency.lane)-40-Math.random()*40,vx:(Math.random()-.5),vy:-1.5,life:.7,col:Math.random()<.5?'#f97316':'#fbbf24',r:3+Math.random()*3});
- }
- emergTimer-=dt;if(emergTimer<=0&&!emergency&&level>=2){emergTimer=(40+Math.random()*20)/diffMul;spawnEmergency();}
  chars.forEach(function(c){
   try{
   if(!c.alive)return;
@@ -732,9 +724,6 @@ function drawBuilding(b){
  if(b.type==='cafe'){ctx.fillStyle='#f472b6';for(var aw=0;aw<5;aw++){ctx.beginPath();ctx.arc(s+18+aw*(b.w-36)/4,y-b.h+16,(b.w-36)/8,0,Math.PI);ctx.fill();}ctx.fillStyle='#fff';ctx.font='900 14px Arial';ctx.fillText('☕ КАФЕ',s+b.w/2,y-b.h-8);}
  ctx.fillStyle='#fff';ctx.font='800 12px Arial';ctx.fillText(b.name,s+b.w/2,y-b.h-58);
  drawInteract(b);
- if(emergency&&emergency.b===b){var fy=Math.max(40,y-b.h-70);ctx.fillStyle='#f97316';ctx.shadowBlur=24;ctx.shadowColor='#f97316';for(var ff=0;ff<3;ff++){circ(s+b.w/2+(ff-1)*16,fy+Math.sin(tick*.3+ff)*4,10+Math.sin(tick*.4+ff)*3);ctx.fill();}ctx.shadowBlur=0;
-  ctx.strokeStyle='#ef4444';ctx.lineWidth=4;ctx.beginPath();ctx.arc(s+b.w/2,fy-24,16,-Math.PI/2,-Math.PI/2+Math.PI*2*(emergency.t/26));ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 12px Arial';ctx.fillText(Math.ceil(emergency.t),s+b.w/2,fy-20);
-  if(emergency.mode==='mash'){ctx.fillStyle='rgba(11,16,32,.85)';rr(s+b.w/2-50,fy-52,100,16,8);ctx.fill();ctx.fillStyle='#38bdf8';rr(s+b.w/2-46,fy-49,92*(emergency.progress/100),10,5);ctx.fill();ctx.fillStyle='#fff';ctx.font='800 10px Arial';ctx.fillText('👆 ТАПАЙ!',s+b.w/2,fy-58);}}
 }
 function drawCar(c){var s=c.x-cameraX;if(s<-150||s>VW+150)return;var y=(roadTop()+roadBot())/2;ctx.save();ctx.translate(s,y);ctx.scale(c.dir,1);ctx.fillStyle='rgba(0,0,0,.35)';ell(0,16,34,6);ctx.fill();ctx.fillStyle=c.col;rr(-32,-6,64,18,8);ctx.fill();rr(-18,-18,36,14,7);ctx.fill();ctx.fillStyle='rgba(190,242,255,.85)';rr(-14,-15,28,9,4);ctx.fill();ctx.fillStyle='#0f172a';circ(-19,12,7);ctx.fill();circ(19,12,7);ctx.fill();ctx.fillStyle='#64748b';circ(-19,12,3);ctx.fill();circ(19,12,3);ctx.fill();var n=nightAmt();if(n>.1&&!c.stopped){ctx.fillStyle='#fde047';ctx.shadowBlur=22*n;ctx.shadowColor='#fde047';circ(31,0,4);ctx.fill();ctx.shadowBlur=0;var g=ctx.createLinearGradient(32,0,110,0);g.addColorStop(0,'rgba(253,224,71,'+(n*.3)+')');g.addColorStop(1,'rgba(253,224,71,0)');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(32,-4);ctx.lineTo(110,-14);ctx.lineTo(110,14);ctx.lineTo(32,4);ctx.closePath();ctx.fill();}
  if(c.stopped){ctx.fillStyle='#ff2d2d';ctx.shadowBlur=20;ctx.shadowColor='#ff2d2d';circ(-31,-2,4);ctx.fill();circ(-31,4,4);ctx.fill();ctx.shadowBlur=0;}else{ctx.fillStyle='#ef4444';circ(-31,0,3);ctx.fill();}
@@ -769,38 +758,26 @@ function draw(){
  if(flash>0){ctx.fillStyle='rgba(255,255,255,'+(flash*.5)+')';ctx.fillRect(0,0,W,H);}
  try{var vg=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.4,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(2,6,23,.4)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);}catch(e){}
 }
-/* ===== НАДЁЖНЫЙ ВВОД: тап работает на телефоне даже с дрожью пальца ===== */
-var drag=null,dragged=false,lastTapAt=0,lastDragEnd=0;
-function tapGuard(px,py){var now=performance.now();if(now-lastTapAt<350)return;if(now-lastDragEnd<400)return;lastTapAt=now;onTap(px,py);}
+/* ===== ВВОД ДЛЯ ПАЛЬЦА: тап = команда, без «съедания» второго тапа ===== */
+var drag=null,dragged=false;
 function downAt(x,y,touch){drag={x:x,y:y,cam:cameraX,touch:!!touch};dragged=false;}
 function moveAt(x,y){
  if(!drag)return;
  var dx=x-drag.x,dy=y-drag.y;
- var th=drag.touch?14:6;
- if(!dragged&&Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)*1.1)dragged=true;
+ var th=drag.touch?26:7;
+ if(!dragged&&Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)*0.8)dragged=true;
  if(dragged){follow=false;document.getElementById('btn-follow').style.background='rgba(11,16,32,.66)';cameraX=clamp(drag.cam-dx/zoom,0,Math.max(0,WORLD-VW));}
 }
-function upAt(x,y){if(drag&&!dragged){tapGuard(x,y);}else if(drag&&dragged){lastDragEnd=performance.now();}drag=null;}
+function upAt(x,y){if(drag&&!dragged)onTap(x,y);drag=null;}
 canvas.style.touchAction='none';
-if(window.PointerEvent){
- canvas.addEventListener('pointerdown',function(e){e.preventDefault();downAt(e.clientX,e.clientY,e.pointerType==='touch');},{passive:false});
- canvas.addEventListener('pointermove',function(e){moveAt(e.clientX,e.clientY);});
- canvas.addEventListener('pointerup',function(e){upAt(e.clientX,e.clientY);});
- canvas.addEventListener('pointercancel',function(e){upAt(e.clientX,e.clientY);});
-}else{
- canvas.addEventListener('mousedown',function(e){downAt(e.clientX,e.clientY,false);});
- window.addEventListener('mousemove',function(e){moveAt(e.clientX,e.clientY);});
- window.addEventListener('mouseup',function(e){upAt(e.clientX,e.clientY);});
- canvas.addEventListener('touchstart',function(e){e.preventDefault();var t=e.changedTouches[0];downAt(t.clientX,t.clientY,true);},{passive:false});
- canvas.addEventListener('touchmove',function(e){e.preventDefault();var t=e.changedTouches[0];moveAt(t.clientX,t.clientY);},{passive:false});
- canvas.addEventListener('touchend',function(e){var t=e.changedTouches[0];upAt(t.clientX,t.clientY);});
- canvas.addEventListener('touchcancel',function(e){var t=e.changedTouches[0];upAt(t.clientX,t.clientY);});
-}
-canvas.addEventListener('click',function(e){tapGuard(e.clientX,e.clientY);});
+canvas.addEventListener('pointerdown',function(e){e.preventDefault();downAt(e.clientX,e.clientY,e.pointerType==='touch');},{passive:false});
+canvas.addEventListener('pointermove',function(e){moveAt(e.clientX,e.clientY);});
+canvas.addEventListener('pointerup',function(e){upAt(e.clientX,e.clientY);});
+canvas.addEventListener('pointercancel',function(e){upAt(e.clientX,e.clientY);});
+canvas.addEventListener('wheel',function(e){e.preventDefault();setZoom(zoom*(e.deltaY<0?1.1:0.9));},{passive:false});
 function onTap(px,py){
  if(over||paused)return;
  var cx=cameraX+px/zoom,cy=py/zoom;
- if(emergency&&emergency.mode==='mash'){var eb=emergency.b;if(cx>eb.x-50&&cx<eb.x+eb.w+50&&cy>laneY(eb.lane)-eb.h-130&&cy<laneY(eb.lane)+30){emergency.progress=Math.min(100,emergency.progress+12);sfx.tap();burst(emergency.x,laneY(emergency.lane)-60,'#38bdf8',6);float(emergency.x,laneY(emergency.lane)-90,'+12','#38bdf8');return;}}
  if(task&&task.interact){var st=task.steps[task.idx];var tb=bByType(st.type);if(tb&&cx>tb.x-40&&cx<tb.x+tb.w+40&&cy>laneY(tb.lane)-tb.h-130&&cy<laneY(tb.lane)+30){
    var it=task.interact;
    if(it.kind==='tap'){it.got++;sfx.tap();if(st.type==='tower')sfx.elevator();burst(tb.x+tb.w/2,laneY(tb.lane)-40,'#22c55e',6);float(tb.x+tb.w/2,laneY(tb.lane)-70,'+1','#22c55e');if(it.got>=it.need){task.interact=null;advanceStep(task.char);}else updateTaskBanner();}
@@ -810,7 +787,6 @@ function onTap(px,py){
    if(mini.mg.kind==='tap'){mini.got++;sfx.tap();burst(mb.x+mb.w/2,laneY(mb.lane)-40,'#f472b6',6);float(mb.x+mb.w/2,laneY(mb.lane)-70,'+1','#f472b6');if(mini.got>=mini.mg.need)finishMini();}
    else{var d2=Math.abs(mini.phase-.5);if(d2<.12){mini.got++;sfx.perfect();float(mb.x+mb.w/2,laneY(mb.lane)-70,'ИДЕАЛЬНО!','#fbbf24');burst(mb.x+mb.w/2,laneY(mb.lane)-40,'#fbbf24',8);if(mini.got>=mini.mg.need)finishMini();}else{sfx.tap();float(mb.x+mb.w/2,laneY(mb.lane)-70,'мимо','#94a3b8');}}
    return;}}
- if(emergency&&emergency.mode==='run'){var eb2=emergency.b;if(cx>eb2.x-30&&cx<eb2.x+eb2.w+30&&cy>laneY(eb2.lane)-eb2.h-110&&cy<laneY(eb2.lane)+30){var best=null,bd=1e9;chars.forEach(function(c){if(c.alive&&!c.isGuest&&c.kind!=='dog'&&c.kind!=='cat'){var d=Math.abs(c.x-emergency.x);if(d<bd){bd=d;best=c;}}});if(best){emergency.responder=best;best.goalLane=emergency.lane;best.tx=emergency.x;best.controlCd=0;say(best,'🧯 тушу');selected=best;sfx.select();updateUI();hideHint();return;}}}
  var mgHere=null;
  for(var mi=0;mi<MINIGAMES.length;mi++){var mb3=bByType(MINIGAMES[mi].type);if(mb3&&unlocked(mb3)&&cx>mb3.x-40&&cx<mb3.x+mb3.w+40&&cy>laneY(mb3.lane)-mb3.h-130&&cy<laneY(mb3.lane)+30){mgHere=MINIGAMES[mi];break;}}
  if(mgHere&&!mini&&!miniPending&&!(task&&task.interact)){startMini(mgHere);return;}
@@ -818,19 +794,15 @@ function onTap(px,py){
  if(!copAliveNow()&&cx>pb.x-30&&cx<pb.x+pb.w+30&&cy>laneY(0)-pb.h-110&&cy<laneY(0)+30){hireCop();return;}
  if(selected&&selected.kind==='cop'){for(var i=0;i<bandits.length;i++){var b=bandits[i];if(Math.abs(cx-b.x)<50&&Math.abs(cy-laneY(0)+24)<80){selected.goalLane=0;selected.tx=b.x;selected.controlCd=0;say(selected,'🚨 бегу');if(Math.abs(selected.x-b.x)<160)arrest(b);hideHint();return;}}}
  var picked=null;
- // ИСПРАВЛЕНИЕ 2: Увеличена зона касания персонажа для телефона (было 34 и 52, стало 60 и 70)
- chars.forEach(function(c){if(!c.alive)return;var y=c.crossY!==undefined?c.crossY:laneY(c.lane);if(Math.abs(cx-c.x)<60&&Math.abs(cy-(y-28))<70)picked=c;});
- if(picked){selected=picked;sfx.select();updateUI();hideHint();return;}
- if(selected&&selected.alive){
-   // ИСПРАВЛЕНИЕ 3: Добавлена визуальная обратная связь при тапе по карте
-   var lane=cy>(roadTop()+roadBot())/2?1:0;selected.goalLane=lane;selected.tx=clamp(cx,20,WORLD-20);selected.controlCd=6;selected.bubbleT=0;if(selected.state!=='cross')selected.state='walk';hideHint();
-   toast('👆 '+selected.name+' идёт!','rgba(56,189,248,.85)');
- }
+ chars.forEach(function(c){if(!c.alive)return;var y=c.crossY!==undefined?c.crossY:laneY(c.lane);if(Math.abs(cx-c.x)<78&&Math.abs(cy-(y-30))<84)picked=c;});
+ if(picked){selected=picked;sfx.select();updateUI();hideHint();toast('👆 Выбран '+picked.name+' — теперь тапни место','rgba(56,189,248,.85)');return;}
+ if(selected&&selected.alive){var lane=cy>(roadTop()+roadBot())/2?1:0;selected.goalLane=lane;selected.tx=clamp(cx,20,WORLD-20);selected.controlCd=6;selected.bubbleT=0;if(selected.state!=='cross')selected.state='walk';hideHint();toast('👆 '+selected.name+' идёт!','rgba(16,185,129,.85)');}
 }
 function hideHint(){if(!hintShown){hintShown=true;var h=document.getElementById('hint');h.style.opacity=0;setTimeout(function(){h.style.display='none';},1200);}}
-function startGame(){initAudio();if(AC&&AC.state==='suspended')AC.resume();started=true;document.getElementById('start').style.display='none';sfx.task();toast('🎯 Уровень 1: 3 задания. 🎮 — миниигры. Тапни героя → цель.','rgba(56,189,248,.85)');
- // ИСПРАВЛЕНИЕ 4: Авто-скрытие подсказки через 6 секунд
- setTimeout(function(){var h=document.getElementById('hint');if(h)h.style.opacity='0';}, 6000);
+function startGame(){initAudio();if(AC&&AC.state==='suspended')AC.resume();started=true;document.getElementById('start').style.display='none';sfx.task();
+ try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){});}catch(e){}
+ toast('🎯 Уровень 1: 3 задания. Тапни героя → тапни место.','rgba(56,189,248,.85)');
+ setTimeout(function(){var h=document.getElementById('hint');if(h)h.style.opacity='0';},6000);
 }
 function continueGame(){document.getElementById('win').style.display='none';}
 function togglePause(){if(over)return;paused=!paused;document.getElementById('btn-pause').textContent=paused?'▶':'⏸';document.getElementById('pause-overlay').style.display=paused?'flex':'none';}
@@ -849,11 +821,6 @@ function openMiniMenu(){
   btn.onclick=function(){document.getElementById('mini-menu').style.display='none';startMini(mg);};
   row.appendChild(btn);list.appendChild(row);
  });
- var fr=document.createElement('div');fr.className='uprow';
- fr.innerHTML='<div class="ic">🧯</div><div class="tx"><b>Тренировка: пожар</b><span>Потуши тапами · +30🪙</span></div>';
- var fb=document.createElement('button');fb.className='upbtn';fb.textContent=emergency?'…уже горит':'▶ Играть';fb.disabled=!!emergency;
- fb.onclick=function(){document.getElementById('mini-menu').style.display='none';spawnEmergency();};
- fr.appendChild(fb);list.appendChild(fr);
  if(mini||miniPending){
   var cr=document.createElement('div');cr.className='uprow';
   cr.innerHTML='<div class="ic">✖</div><div class="tx"><b>Отменить миниигру</b><span>Герой вернётся к делам</span></div>';
@@ -870,7 +837,7 @@ function openQuest(){
  h+='<div class="qrow"><span class="st">🔓</span><div>Следующее открытие: <b>'+(nb?nb.name+' (ур.'+(level+1)+')':'— всё открыто')+'</b></div></div>';
  if(task){h+='<div class="qrow"><span class="st">📋</span><div>'+task.giver+' → '+task.char.name+'<br>';task.steps.forEach(function(s,i){h+='<span style="color:'+(i<task.idx?'#10b981':i===task.idx?'#fbbf24':'#8fa3c8')+'">'+(i<task.idx?'✅':i===task.idx?'▶':'•')+' '+stepLabel(s.type)+'</span> ';});h+='</div></div>';}
  else h+='<div class="qrow"><span class="st">💤</span><div>Нет активного задания — нажми «✨ Задание».</div></div>';
- h+='<div class="qrow"><span class="st">🎮</span><div>Миниигры: 🥕огород · 💧колодец(ур2) · 🪵лес(ур3) · ☕кафе(ур7) · 🏙башня(ур8) · 🧯пожар. Жми 🎮 или тапай значок 🎮 над зданием.</div></div>';
+ h+='<div class="qrow"><span class="st">🎮</span><div>Миниигры: 🥕огород · 💧колодец(ур2) · 🪵лес(ур3) · ☕кафе(ур7) · 🏙башня(ур8). Жми 🎮 или тапай значок 🎮 над зданием.</div></div>';
  h+='<div class="qrow"><span class="st">👮</span><div>Коп: '+(copAliveNow()?'на службе':'погиб — новый через '+Math.ceil(copTimer)+'с или найм 40🪙 (участок / 🛠)')+'</div></div>';
  h+='<div class="qrow"><span class="st">🛠</span><div>Улучшения: '+UPG.filter(function(u){return upgrades[u.id]>0;}).map(function(u){return u.ic+u.name;}).join(', ')||'пока нет'+'</div></div>';
  h+='<div class="qrow"><span class="st">🔥</span><div>Комбо-серия: <b>'+streak+'</b> (бонус +'+Math.min(streak,5)*2+'🪙 за задание)</div></div>';
@@ -930,7 +897,7 @@ function visitFriend(){
 }
 function iconSVG(sz){return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+sz+'" height="'+sz+'" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="#0b1020"/><rect x="30" y="70" width="40" height="70" fill="#b45309"/><polygon points="26,70 50,46 74,70" fill="#dc2626"/><rect x="42" y="104" width="16" height="36" fill="#3f2d1d"/><rect x="36" y="80" width="12" height="12" fill="#fde047"/><rect x="56" y="80" width="12" height="12" fill="#fde047"/><rect x="92" y="34" width="44" height="106" fill="#334155"/><rect x="100" y="20" width="28" height="14" fill="#3b4a63"/><rect x="112" y="8" width="4" height="12" fill="#94a3b8"/><circle cx="114" cy="8" r="4" fill="#ff3c3c"/><g fill="#fde047"><rect x="98" y="44" width="8" height="10"/><rect x="112" y="44" width="8" height="10"/><rect x="126" y="44" width="8" height="10"/><rect x="98" y="62" width="8" height="10"/><rect x="126" y="62" width="8" height="10"/><rect x="98" y="80" width="8" height="10"/><rect x="112" y="80" width="8" height="10"/><rect x="126" y="80" width="8" height="10"/><rect x="98" y="98" width="8" height="10"/><rect x="126" y="98" width="8" height="10"/></g><rect x="20" y="140" width="152" height="14" fill="#2b3648"/><rect x="20" y="154" width="152" height="18" fill="#2f7a44"/></svg>');}
 (function(){
- var mf={name:'City Life — Семейный городок',short_name:'City Life',description:'Живая 2D-игра про семью и город: 8 уровней, стройка, небоскрёб, миниигры и гости.',start_url:'./',scope:'./',display:'standalone',orientation:'any',background_color:'#0b1020',theme_color:'#0b1020',icons:[{src:iconSVG(192),sizes:'192x192',type:'image/svg+xml',purpose:'any'},{src:iconSVG(512),sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
+ var mf={name:'City Life — Семейный городок',short_name:'City Life',description:'Живая 2D-игра про семью и город: 8 уровней, стройка, небоскрёб, миниигры и гости.',start_url:'./',scope:'./',display:'standalone',orientation:'landscape',background_color:'#0b1020',theme_color:'#0b1020',icons:[{src:iconSVG(192),sizes:'192x192',type:'image/svg+xml',purpose:'any'},{src:iconSVG(512),sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
  var l=document.createElement('link');l.rel='manifest';l.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(l);
  var ai=document.createElement('link');ai.rel='apple-touch-icon';ai.href=iconSVG(192);document.head.appendChild(ai);
  var fv=document.createElement('link');fv.rel='icon';fv.type='image/svg+xml';fv.href=iconSVG(192);document.head.appendChild(fv);
